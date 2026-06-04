@@ -16,20 +16,24 @@ End-to-end cloud-native SaaS (REST only, no UI): two Node.js microservices, AWS 
 
 ## Architecture
 
-| Component | Location | Role |
-|-----------|----------|------|
-| AuthorizationService | `services/authorization` | Issue bearer tokens |
-| Employee service | `services/employee` | Profiles (DynamoDB), photos (S3) |
-| nginx | `nginx/nginx.conf` + `docker-compose.yml` | L7 LB for local Compose |
-| ingress-nginx | `k8s/ingress.yaml` | L7 LB for minikube |
+
+| Component            | Location                                  | Role                             |
+| -------------------- | ----------------------------------------- | -------------------------------- |
+| AuthorizationService | `services/authorization`                  | Issue bearer tokens              |
+| Employee service     | `services/employee`                       | Profiles (DynamoDB), photos (S3) |
+| nginx                | `nginx/nginx.conf` + `docker-compose.yml` | L7 LB for local Compose          |
+| ingress-nginx        | `k8s/ingress.yaml`                        | L7 LB for minikube               |
+
 
 ### AWS resources
 
-| Resource | Default name | Purpose |
-|----------|--------------|---------|
+
+| Resource | Default name         | Purpose                                                                     |
+| -------- | -------------------- | --------------------------------------------------------------------------- |
 | DynamoDB | `Client_Credentials` | `client_id` (hash), `access_token` (sort), `client_secret`, `contact_email` |
-| DynamoDB | `Employee_Profiles` | `employee_id` (hash), profile fields |
-| S3 | `PHOTO_BUCKET` | Objects at `employees/{EmployeeID}/photo` |
+| DynamoDB | `Employee_Profiles`  | `employee_id` (hash), profile fields                                        |
+| S3       | `PHOTO_BUCKET`       | Objects at `employees/{EmployeeID}/photo`                                   |
+
 
 ---
 
@@ -45,20 +49,24 @@ Replace `{EmployeeID}` with a **7-digit** ID (e.g. `1234567`).
 
 ### 1. Issue access token
 
-| | |
-|--|--|
-| **Service** | AuthorizationService |
-| **Method** | `POST` |
-| **Path** | `/peoplesuite/apis/token` |
-| **Auth** | None (credentials in query string) |
+
+|             |                                    |
+| ----------- | ---------------------------------- |
+| **Service** | AuthorizationService               |
+| **Method**  | `POST`                             |
+| **Path**    | `/peoplesuite/apis/token`          |
+| **Auth**    | None (credentials in query string) |
+
 
 **Query parameters**
 
-| Parameter | Required | Value |
-|-----------|----------|--------|
-| `grant_type` | Yes | `client_credentials` |
-| `client_Id` or `client_id` | Yes | e.g. `testclient` (max 10 chars) |
-| `client_secret` | Yes | e.g. `abcdefghgobbledegook1234` |
+
+| Parameter                  | Required | Value                            |
+| -------------------------- | -------- | -------------------------------- |
+| `grant_type`               | Yes      | `client_credentials`             |
+| `client_Id` or `client_id` | Yes      | e.g. `testclient` (max 10 chars) |
+| `client_secret`            | Yes      | e.g. `abcdefghgobbledegook1234`  |
+
 
 **Example request**
 
@@ -82,21 +90,25 @@ Use `access_token` in later calls: `Authorization: Bearer <access_token>`.
 
 ### 2. Create employee profile
 
-| | |
-|--|--|
-| **Service** | Employee |
-| **Method** | `POST` |
-| **Path** | `/peoplesuite/apis/employees/{EmployeeID}/profile` |
-| **Auth** | `Authorization: Bearer <access_token>` |
+
+|             |                                                    |
+| ----------- | -------------------------------------------------- |
+| **Service** | Employee                                           |
+| **Method**  | `POST`                                             |
+| **Path**    | `/peoplesuite/apis/employees/{EmployeeID}/profile` |
+| **Auth**    | `Authorization: Bearer <access_token>`             |
+
 
 **JSON body**
 
-| Field | Format |
-|-------|--------|
-| `first_name` | string |
-| `last_name` | string |
-| `start_date` | `YYYY-MM-DD` |
-| `country` | 2-letter ISO-3166 (e.g. `GB`, `US`) |
+
+| Field        | Format                              |
+| ------------ | ----------------------------------- |
+| `first_name` | string                              |
+| `last_name`  | string                              |
+| `start_date` | `YYYY-MM-DD`                        |
+| `country`    | 2-letter ISO-3166 (e.g. `GB`, `US`) |
+
 
 **Example request**
 
@@ -124,12 +136,14 @@ Content-Type: application/json
 
 ### 3. Get employee profile
 
-| | |
-|--|--|
-| **Service** | Employee |
-| **Method** | `GET` |
-| **Path** | `/peoplesuite/apis/employees/{EmployeeID}/profile` |
-| **Auth** | `Authorization: Bearer <access_token>` |
+
+|             |                                                    |
+| ----------- | -------------------------------------------------- |
+| **Service** | Employee                                           |
+| **Method**  | `GET`                                              |
+| **Path**    | `/peoplesuite/apis/employees/{EmployeeID}/profile` |
+| **Auth**    | `Authorization: Bearer <access_token>`             |
+
 
 **Example request**
 
@@ -144,12 +158,14 @@ Authorization: Bearer <access_token>
 
 ### 4. Upload employee photo
 
-| | |
-|--|--|
-| **Service** | Employee |
-| **Method** | `POST` |
-| **Path** | `/peoplesuite/apis/employees/{EmployeeID}/photo` |
-| **Auth** | `Authorization: Bearer <access_token>` |
+
+|             |                                                  |
+| ----------- | ------------------------------------------------ |
+| **Service** | Employee                                         |
+| **Method**  | `POST`                                           |
+| **Path**    | `/peoplesuite/apis/employees/{EmployeeID}/photo` |
+| **Auth**    | `Authorization: Bearer <access_token>`           |
+
 
 **Body:** `multipart/form-data`, field name `file` (or JSON with `photo_base64`).
 
@@ -181,12 +197,14 @@ S3 object path: `employees/{EmployeeID}/photo` in `PHOTO_BUCKET`.
 
 ### 5. Download employee photo
 
-| | |
-|--|--|
-| **Service** | Employee |
-| **Method** | `GET` |
-| **Path** | `/peoplesuite/apis/employees/{EmployeeID}/photo` |
-| **Auth** | `Authorization: Bearer <access_token>` |
+
+|             |                                                  |
+| ----------- | ------------------------------------------------ |
+| **Service** | Employee                                         |
+| **Method**  | `GET`                                            |
+| **Path**    | `/peoplesuite/apis/employees/{EmployeeID}/photo` |
+| **Auth**    | `Authorization: Bearer <access_token>`           |
+
 
 **Example request**
 
@@ -346,27 +364,31 @@ After a successful photo upload, confirm in S3: `employees/1234567/photo` in you
 
 ### Step 5 — What to submit
 
-| Item | Screenshot / artifact |
-|------|------------------------|
-| Code | This repo (both microservices, nginx, k8s manifests) |
-| DynamoDB | Table schemas + items in `Client_Credentials`, `Employee_Profiles` |
-| S3 | Bucket name + object after photo upload |
-| API tests | Terminal output from `./scripts/test-minikube-apis.sh` or `./scripts/test-apis.sh` |
-| Load balancer | Docker Compose (nginx) or minikube ingress |
+
+| Item          | Screenshot / artifact                                                              |
+| ------------- | ---------------------------------------------------------------------------------- |
+| Code          | This repo (both microservices, nginx, k8s manifests)                               |
+| DynamoDB      | Table schemas + items in `Client_Credentials`, `Employee_Profiles`                 |
+| S3            | Bucket name + object after photo upload                                            |
+| API tests     | Terminal output from `./scripts/test-minikube-apis.sh` or `./scripts/test-apis.sh` |
+| Load balancer | Docker Compose (nginx) or minikube ingress                                         |
+
 
 ---
 
 ## Troubleshooting
 
-| Problem | Fix |
-|---------|-----|
-| `Could not resolve host: peoplesuite.local` | Use `./scripts/test-minikube-apis.sh` or `minikube tunnel` + `BASE_URL=http://127.0.0.1` |
-| `ErrImagePull` | `./scripts/build-minikube-images.sh` |
-| `storage_error` / invalid AWS token | `./scripts/create-aws-secret.sh` (from `.env`); never apply placeholder `REPLACE_ME` secret |
-| `invalid_client_secret` | Use seeded `client_secret` from setup; rebuild auth image if needed |
-| No S3 bucket | Re-run `./scripts/setup-aws.sh` with `PHOTO_BUCKET` set |
-| Port 80 connection refused | Start `docker compose up` or use minikube test script |
-| zsh `parse error near '&'` | Quote the full URL in curl |
+
+| Problem                                     | Fix                                                                                         |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `Could not resolve host: peoplesuite.local` | Use `./scripts/test-minikube-apis.sh` or `minikube tunnel` + `BASE_URL=http://127.0.0.1`    |
+| `ErrImagePull`                              | `./scripts/build-minikube-images.sh`                                                        |
+| `storage_error` / invalid AWS token         | `./scripts/create-aws-secret.sh` (from `.env`); never apply placeholder `REPLACE_ME` secret |
+| `invalid_client_secret`                     | Use seeded `client_secret` from setup; rebuild auth image if needed                         |
+| No S3 bucket                                | Re-run `./scripts/setup-aws.sh` with `PHOTO_BUCKET` set                                     |
+| Port 80 connection refused                  | Start `docker compose up` or use minikube test script                                       |
+| zsh `parse error near '&'`                  | Quote the full URL in curl                                                                  |
+
 
 ---
 
@@ -392,8 +414,7 @@ peoplesuite/
 
 ## Original lab specification
 
-<details>
-<summary>Full assignment text</summary>
+Full assignment text
 
 The goal of this lab is to build an end-to-end cloud native SAAS application. This application will have no UI, only REST APIs. You must use a Layer 7 Load Balancer (nginx recommended), Kubernetes locally or Killercoda/KodeKloud, AWS S3 and DynamoDB.
 
@@ -409,4 +430,3 @@ The goal of this lab is to build an end-to-end cloud native SAAS application. Th
 - On token request: validate client, generate UUID `access_token`, store in DynamoDB
 - Protected APIs: `Authorization: Bearer <access_token>`, lookup token in DynamoDB
 
-</details>
