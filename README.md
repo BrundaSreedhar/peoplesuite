@@ -1,16 +1,15 @@
 # PeopleSuite APIs
 
-End-to-end cloud-native SaaS (REST only, no UI): two Node.js microservices, AWS DynamoDB + S3, Layer 7 load balancing (nginx or ingress-nginx), OAuth 2.0 client credentials.
+End-to-end cloud-native SaaS: two microservices, AWS DynamoDB + S3, Layer 7 load balancing (nginx or ingress-nginx), OAuth 2.0 client credentials.
 
 ---
 
-## Lab requirements (original)
+## Lab requirements
 
 - **Employee** microservice: profile and photo APIs
 - **AuthorizationService**: OAuth client credentials token endpoint
 - **AWS**: DynamoDB + S3
 - **Layer 7 load balancer**: nginx (Docker Compose) or ingress-nginx (Kubernetes)
-- **Submit**: code, cloud resource screenshots, API test screenshots
 
 ---
 
@@ -302,7 +301,7 @@ kubectl get pods -n peoplesuite -w   # wait until READY 1/1
 
 ---
 
-### Step 4 — Run API tests (screenshot-friendly output)
+### Step 4 — Run API tests 
 
 Scripts print **method, endpoint, full URL, headers, body, and JSON response** for each call.
 
@@ -362,36 +361,6 @@ After a successful photo upload, confirm in S3: `employees/1234567/photo` in you
 
 ---
 
-### Step 5 — What to submit
-
-
-| Item          | Screenshot / artifact                                                              |
-| ------------- | ---------------------------------------------------------------------------------- |
-| Code          | This repo (both microservices, nginx, k8s manifests)                               |
-| DynamoDB      | Table schemas + items in `Client_Credentials`, `Employee_Profiles`                 |
-| S3            | Bucket name + object after photo upload                                            |
-| API tests     | Terminal output from `./scripts/test-minikube-apis.sh` or `./scripts/test-apis.sh` |
-| Load balancer | Docker Compose (nginx) or minikube ingress                                         |
-
-
----
-
-## Troubleshooting
-
-
-| Problem                                     | Fix                                                                                         |
-| ------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `Could not resolve host: peoplesuite.local` | Use `./scripts/test-minikube-apis.sh` or `minikube tunnel` + `BASE_URL=http://127.0.0.1`    |
-| `ErrImagePull`                              | `./scripts/build-minikube-images.sh`                                                        |
-| `storage_error` / invalid AWS token         | `./scripts/create-aws-secret.sh` (from `.env`); never apply placeholder `REPLACE_ME` secret |
-| `invalid_client_secret`                     | Use seeded `client_secret` from setup; rebuild auth image if needed                         |
-| No S3 bucket                                | Re-run `./scripts/setup-aws.sh` with `PHOTO_BUCKET` set                                     |
-| Port 80 connection refused                  | Start `docker compose up` or use minikube test script                                       |
-| zsh `parse error near '&'`                  | Quote the full URL in curl                                                                  |
-
-
----
-
 ## Project layout
 
 ```
@@ -411,22 +380,4 @@ peoplesuite/
 ```
 
 ---
-
-## Original lab specification
-
-Full assignment text
-
-The goal of this lab is to build an end-to-end cloud native SAAS application. This application will have no UI, only REST APIs. You must use a Layer 7 Load Balancer (nginx recommended), Kubernetes locally or Killercoda/KodeKloud, AWS S3 and DynamoDB.
-
-**Employee microservice**
-
-- `GET`/`POST` `/peoplesuite/apis/employees/{EmployeeID}/profile` — EmployeeID (7 digits), First Name, Last Name, Start Date, Country (2-digit ISO-3166)
-- `GET`/`POST` `/peoplesuite/apis/employees/{EmployeeID}/photo`
-
-**OAuth 2.0 client credentials**
-
-- **AuthorizationService**: `POST` `/peoplesuite/apis/token` with query params `grant_type`, `client_Id`, `client_secret`
-- DynamoDB `Client_Credentials`: `client_id` (hash), `access_token` (sort), `client_secret`, `contact_email`
-- On token request: validate client, generate UUID `access_token`, store in DynamoDB
-- Protected APIs: `Authorization: Bearer <access_token>`, lookup token in DynamoDB
 
