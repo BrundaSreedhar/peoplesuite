@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: peoplesuite-ingress
+  namespace: peoplesuite
+spec:
+  ingressClassName: nginx
+  rules:
+    # No host: works with minikube IP, localhost (tunnel), and port-forward
+    - http:
+        paths:
+          - path: /peoplesuite/apis/token
+            pathType: Prefix
+            backend:
+              service:
+                name: authorization-service
+                port:
+                  number: 8080
+          - path: /peoplesuite/apis/employees
+            pathType: Prefix
+            backend:
+              service:
+                name: employee-service
+                port:
+                  number: 8081

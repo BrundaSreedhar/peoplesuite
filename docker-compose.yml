@@ -1,0 +1,28 @@
+services:
+  authorization-service:
+    build: ./services/authorization
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      PORT: "8080"
+
+  employee-service:
+    build: ./services/employee
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    environment:
+      PORT: "8081"
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - authorization-service
+      - employee-service

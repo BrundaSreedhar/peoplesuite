@@ -1,0 +1,21 @@
+{
+  "name": "peoplesuite",
+  "version": "1.0.0",
+  "description": "PeopleSuite APIs - End-to-end SaaS",
+  "private": true,
+  "type": "commonjs",
+  "workspaces": [
+    "services/authorization",
+    "services/employee"
+  ],
+  "scripts": {
+    "start:authorization": "npm run start -w @peoplesuite/authorization",
+    "start:employee": "npm run start -w @peoplesuite/employee",
+    "install:all": "npm install"
+  },
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BrundaSreedhar/peoplesuite.git"
+  }
+}

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: peoplesuite-config
+  namespace: peoplesuite
+data:
+  AWS_REGION: "us-east-1"
+  CLIENT_CREDENTIALS_TABLE: "Client_Credentials"
+  EMPLOYEE_PROFILES_TABLE: "Employee_Profiles"
+  PHOTO_BUCKET: "peoplesuite-employee-photos-brunda"
+  CLIENT_CREDENTIALS_SK: "NONE"
